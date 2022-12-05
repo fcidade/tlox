@@ -1,4 +1,4 @@
-export enum Token {
+export enum TokenType  {
     // Single Character Tokens
     LeftBrace, RightBrace,
     LeftParen, RightParen,
@@ -38,4 +38,11 @@ export enum Token {
 
     // End of File
     EOF
+}
+
+export class Token {
+    constructor(
+        private readonly type: TokenType,
+        private readonly value: string,
+    ){}
 }
