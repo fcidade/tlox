@@ -40,9 +40,17 @@ export enum TokenType  {
     EOF
 }
 
+export type TokenLiteral = string | number | null
+
 export class Token {
     constructor(
         private readonly type: TokenType,
-        private readonly value: string,
+        private readonly lexeme: string,
+        private readonly literal: TokenLiteral,
+        private readonly line: number,
     ){}
+
+    toString() {
+        return `${this.type} ${this.lexeme} ${this.literal}}`
+    }
 }

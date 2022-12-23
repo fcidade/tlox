@@ -1,25 +1,35 @@
-import { Scanner } from "./scanner.ts"
+import { Scanner } from "./scanner.ts";
 import { assertEquals } from "https://deno.land/std@0.166.0/testing/asserts.ts";
+import { Token, TokenType } from "./token.ts";
 
-Deno.test("TODO", () => {
-    const program = `
-class Brunch < Breakfast {
-    init(meat, bread, drink) {
-        super.init(meat, bread);
-        this.drink = drink;
-        this.astrng = "HELLO I AM A STRING"
-        if (1 == 2) {
-            if (2 != 3 and 2 < 2 and 5 > 10 or 20 <= 2 and 30 >= 12) {
-                print "YES"
-            }
-            // hey iam a comment and should not be printed
-        }
-        this.anotherstrng = "HELLO Iaa a a another AM A STRING"
-    }
-}
-    `
-    console.log(program)
-    const scanner = new Scanner(program)
-    const tokens = scanner.tokenize()
-    console.log(tokens)
-})
+const makeTestCase = (
+  program: string,
+  expectedTokensExceptEOF: Token[],
+): [string, Token[]] => {
+  return [program, [
+    ...expectedTokensExceptEOF,
+    new Token(TokenType.EOF, "", null, 1),
+  ]];
+};
+
+Deno.test("Should parse single character tokens", () => {
+  const cases: Array<[string, Token[]]> = [
+    makeTestCase("[", [new Token(TokenType.LeftBrace, "[", null, 1)]),
+    makeTestCase("]", [new Token(TokenType.RightBrace, "]", null, 1)]),
+    makeTestCase("(", [new Token(TokenType.LeftParen, "(", null, 1)]),
+    makeTestCase(")", [new Token(TokenType.RightParen, ")", null, 1)]),
+    makeTestCase(",", [new Token(TokenType.Comma, ",", null, 1)]),
+    makeTestCase(".", [new Token(TokenType.Dot, ".", null, 1)]),
+    makeTestCase("-", [new Token(TokenType.Minus, "-", null, 1)]),
+    makeTestCase("+", [new Token(TokenType.Plus, "+", null, 1)]),
+    makeTestCase("*", [new Token(TokenType.Star, "*", null, 1)]),
+    makeTestCase(";", [new Token(TokenType.Semicolon, ";", null, 1)]),
+  ];
+
+  cases.forEach(([program, expectedTokens]) => {
+    const scanner = new Scanner(program);
+    const tokens = scanner.scanTokens();
+
+    assertEquals(tokens, expectedTokens);
+  });
+});
