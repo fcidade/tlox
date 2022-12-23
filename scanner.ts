@@ -28,6 +28,11 @@ export class Scanner {
 
   private scanToken() {
     const currChar = this.advance();
+
+    if (currChar === "\n") {
+      this.line++;
+    }
+
     switch (currChar) {
       case "[": {
         this.addToken(TokenType.LeftBrace);

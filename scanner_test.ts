@@ -155,6 +155,18 @@ Deno.test("Should always append a EOF to the end of the token list", () => {
   ]);
 });
 
+Deno.test("Should increase line counter everytime a line breaks", () => {
+  const program = Array.from({ length: 15 }).fill("\n").join("");
+  console.log({ program });
+
+  const scanner = new Scanner(program);
+  const tokens = scanner.scanTokens();
+
+  assertEquals(tokens, [
+    new Token(TokenType.EOF, "", null, 16),
+  ]);
+});
+
 /*
     - Single line comments
     - Increase line counters
