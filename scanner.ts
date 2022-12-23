@@ -2,7 +2,7 @@ import { Lox } from "./lox.ts";
 import { Token, TokenLiteral, TokenType } from "./token.ts";
 
 export interface ErrorHandler {
-  error(line: number, message: string): void
+  error(line: number, message: string): void;
 }
 
 export class Scanner {
@@ -33,10 +33,6 @@ export class Scanner {
 
   private scanToken() {
     const currChar = this.advance();
-
-    if (currChar === "\n") {
-      this.line++;
-    }
 
     switch (currChar) {
       case "[": {
@@ -97,34 +93,72 @@ export class Scanner {
         this.addToken(this.match("=") ? TokenType.BangEqual : TokenType.Bang);
         break;
       }
-    }
-
-    this.scanString(currChar);
-
-    if (this.isNumber(currChar)) {
-      this.scanNumber();
-    } else if (this.isAlphaNumeric(currChar)) {
-      this.scanIdentifier();
-    } else {
-      this.errorHandler.error(this.line, "unexpected character")
+      case " ":
+      case "\r":
+      case "\t":
+        break;
+      case "\n": {
+        this.line++;
+        break;
+      }
+      case "/": {
+        if (this.match("/")) {
+          this.ignoreSingleLineComment();
+        } else if (this.match("*")) {
+          this.ignoreMultiLineComment();
+        } else {
+          this.addToken(TokenType.Slash);
+        }
+        break;
+      }
+      case '"': {
+        this.scanString();
+        break;
+      }
+      default: {
+        if (this.isNumber(currChar)) {
+          this.scanNumber();
+        } else if (this.isAlphaNumeric(currChar)) {
+          this.scanIdentifier();
+        } else {
+          this.errorHandler.error(
+            this.line,
+            "unexpected character: " + currChar,
+          );
+        }
+      }
     }
   }
 
-  private scanString(currChar: string) {
-    if (currChar === '"') {
-      while (this.peek() !== '"' && !this.isAtEnd()) {
-        if (this.peek() === "\n") this.line++;
-        this.advance();
-      }
-
-      if (this.peek() !== '"') {
-        this.errorHandler.error(this.line, "unterminated string")
-      }
-      this.advance(); // Closing "
-
-      const literal = this.source.substring(this.start + 1, this.current - 1);
-      this.addTokenWithLiteral(TokenType.String, literal);
+  private ignoreMultiLineComment() {
+    while(this.peek() !== "*" && this.peekNext() !== "/") {
+      if(this.peek() === "\n")
+        this.line++;
+      this.advance();
     }
+    this.advance();
+    this.advance();
+  }
+
+  private ignoreSingleLineComment() {
+    while (this.peek() !== "\n" && !this.isAtEnd()) {
+      this.advance();
+    }
+  }
+
+  private scanString() {
+    while (this.peek() !== '"' && !this.isAtEnd()) {
+      if (this.peek() === "\n") this.line++;
+      this.advance();
+    }
+
+    if (this.peek() !== '"') {
+      this.errorHandler.error(this.line, "unterminated string");
+    }
+    this.advance(); // Closing "
+
+    const literal = this.source.substring(this.start + 1, this.current - 1);
+    this.addTokenWithLiteral(TokenType.String, literal);
   }
 
   private scanIdentifier() {
@@ -159,7 +193,7 @@ export class Scanner {
 
   private scanNumber() {
     while (this.isNumber(this.peek())) this.advance();
-    if (this.peek() === ".") {
+    if (this.peek() === "." && this.isNumber(this.peekNext())) {
       this.advance();
       while (this.isNumber(this.advance()));
     }
@@ -194,6 +228,11 @@ export class Scanner {
   private peek() {
     if (this.isAtEnd()) return "\0";
     return this.source[this.current];
+  }
+
+  private peekNext() {
+    if (this.current + 1 > this.source.length) return "\0";
+    return this.source[this.current + 1];
   }
 
   private advance() {
