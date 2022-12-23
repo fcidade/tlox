@@ -100,7 +100,13 @@ export class Scanner {
 
   private scanString(currChar: string) {
     if (currChar === '"') {
-      while (this.advance() !== '"');
+      while (this.peek() !== '"' && !this.isAtEnd()) {
+        if (this.peek() === "\n") this.line++;
+        this.advance();
+      }
+
+      this.advance(); // Closing "
+
       const literal = this.source.substring(this.start + 1, this.current - 1);
       this.addTokenWithLiteral(TokenType.String, literal);
     }
@@ -146,6 +152,8 @@ export class Scanner {
     const literal = Number(this.source.substring(this.start, this.current));
     this.addTokenWithLiteral(TokenType.Number, literal);
   }
+
+  // Helpers --
 
   private isAlphaNumeric(character: string): boolean {
     return this.isAlpha(character) || this.isNumber(character);

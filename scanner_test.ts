@@ -88,8 +88,8 @@ Deno.test("Should parse multiline strings", () => {
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
-    new Token(TokenType.String, `"${stringContent}"`, stringContent, 1),
-    new Token(TokenType.EOF, "", null, 1),
+    new Token(TokenType.String, `"${stringContent}"`, stringContent, 15),
+    new Token(TokenType.EOF, "", null, 15),
   ]);
 });
 
@@ -156,6 +156,9 @@ Deno.test("Should always append a EOF to the end of the token list", () => {
 });
 
 /*
+    - Single line comments
+    - Increase line counters
+    - Multi line comments
 
     Handle errors:
     - Unterminated string
