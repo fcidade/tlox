@@ -16,7 +16,7 @@ export class Lox {
   }
 
   run(source: string) {
-    const scanner = new Scanner(source);
+    const scanner = new Scanner(Lox, source);
     const tokens = scanner.scanTokens();
     console.log(tokens);
   }

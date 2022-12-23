@@ -1,6 +1,16 @@
 import { Scanner } from "./scanner.ts";
 import { assertEquals } from "https://deno.land/std@0.166.0/testing/asserts.ts";
+import {
+  assertSpyCall,
+  assertSpyCallArgs,
+  assertSpyCalls,
+  spy,
+} from "https://deno.land/std@0.165.0/testing/mock.ts";
 import { Token, TokenType } from "./token.ts";
+
+const errorHandlerStub = {
+  error: console.error,
+};
 
 const testCase = (
   program: string,
@@ -35,7 +45,7 @@ Deno.test("Should parse single or double character tokens", () => {
   ];
 
   cases.forEach(([program, expectedTokens]) => {
-    const scanner = new Scanner(program);
+    const scanner = new Scanner(errorHandlerStub, program);
     const tokens = scanner.scanTokens();
 
     assertEquals(tokens, expectedTokens);
@@ -45,7 +55,7 @@ Deno.test("Should parse single or double character tokens", () => {
 Deno.test("Should parse identifiers", () => {
   const program = "iAmA_identifier";
 
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
@@ -57,7 +67,7 @@ Deno.test("Should parse identifiers", () => {
 Deno.test("Should parse strings", () => {
   const program = '"i am a string"';
 
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
@@ -84,7 +94,7 @@ Deno.test("Should parse multiline strings", () => {
     `;
   const program = `"${stringContent}"`;
 
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
@@ -96,7 +106,7 @@ Deno.test("Should parse multiline strings", () => {
 Deno.test("Should parse integer numbers", () => {
   const program = "1977";
 
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
@@ -108,7 +118,7 @@ Deno.test("Should parse integer numbers", () => {
 Deno.test("Should parse decimal numbers", () => {
   const program = "1957.1234";
 
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
@@ -138,7 +148,7 @@ Deno.test("Should parse keywords", () => {
   ];
 
   cases.forEach(([program, expectedTokens]) => {
-    const scanner = new Scanner(program);
+    const scanner = new Scanner(errorHandlerStub, program);
     const tokens = scanner.scanTokens();
 
     assertEquals(tokens, expectedTokens);
@@ -147,7 +157,7 @@ Deno.test("Should parse keywords", () => {
 
 Deno.test("Should always append a EOF to the end of the token list", () => {
   const program = "";
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
@@ -157,14 +167,37 @@ Deno.test("Should always append a EOF to the end of the token list", () => {
 
 Deno.test("Should increase line counter everytime a line breaks", () => {
   const program = Array.from({ length: 15 }).fill("\n").join("");
-  console.log({ program });
 
-  const scanner = new Scanner(program);
+  const scanner = new Scanner(errorHandlerStub, program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
     new Token(TokenType.EOF, "", null, 16),
   ]);
+});
+
+Deno.test("Should report error if a string is unterminated", () => {
+  const program = '"unterminated string';
+  const errorHandlerSpy = spy(errorHandlerStub, "error");
+
+  const scanner = new Scanner(errorHandlerStub, program);
+
+  scanner.scanTokens();
+  errorHandlerSpy.restore();
+
+  assertSpyCall(errorHandlerSpy, 0, { args: [1, "unterminated string"] });
+});
+
+Deno.test("Should report error if a character is unexpected", () => {
+  const program = '$';
+  const errorHandlerSpy = spy(errorHandlerStub, "error");
+
+  const scanner = new Scanner(errorHandlerStub, program);
+
+  scanner.scanTokens();
+  errorHandlerSpy.restore();
+
+  assertSpyCall(errorHandlerSpy, 0, { args: [1, "unexpected character"] });
 });
 
 /*

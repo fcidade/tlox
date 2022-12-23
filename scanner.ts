@@ -1,6 +1,10 @@
 import { Lox } from "./lox.ts";
 import { Token, TokenLiteral, TokenType } from "./token.ts";
 
+export interface ErrorHandler {
+  error(line: number, message: string): void
+}
+
 export class Scanner {
   private tokens: Token[];
   private start: number;
@@ -8,6 +12,7 @@ export class Scanner {
   private line: number;
 
   constructor(
+    private readonly errorHandler: ErrorHandler,
     private readonly source: string,
   ) {
     this.tokens = [];
@@ -94,13 +99,15 @@ export class Scanner {
       }
     }
 
+    this.scanString(currChar);
+
     if (this.isNumber(currChar)) {
       this.scanNumber();
     } else if (this.isAlphaNumeric(currChar)) {
       this.scanIdentifier();
+    } else {
+      this.errorHandler.error(this.line, "unexpected character")
     }
-
-    this.scanString(currChar);
   }
 
   private scanString(currChar: string) {
@@ -110,6 +117,9 @@ export class Scanner {
         this.advance();
       }
 
+      if (this.peek() !== '"') {
+        this.errorHandler.error(this.line, "unterminated string")
+      }
       this.advance(); // Closing "
 
       const literal = this.source.substring(this.start + 1, this.current - 1);
