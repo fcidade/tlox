@@ -12,7 +12,7 @@ const makeTestCase = (
   ]];
 };
 
-Deno.test("Should parse single character tokens", () => {
+Deno.test("Should parse single or double character tokens", () => {
   const cases: Array<[string, Token[]]> = [
     makeTestCase("[", [new Token(TokenType.LeftBrace, "[", null, 1)]),
     makeTestCase("]", [new Token(TokenType.RightBrace, "]", null, 1)]),
@@ -24,18 +24,6 @@ Deno.test("Should parse single character tokens", () => {
     makeTestCase("+", [new Token(TokenType.Plus, "+", null, 1)]),
     makeTestCase("*", [new Token(TokenType.Star, "*", null, 1)]),
     makeTestCase(";", [new Token(TokenType.Semicolon, ";", null, 1)]),
-  ];
-
-  cases.forEach(([program, expectedTokens]) => {
-    const scanner = new Scanner(program);
-    const tokens = scanner.scanTokens();
-
-    assertEquals(tokens, expectedTokens);
-  });
-});
-
-Deno.test("Should parse 'one or two' character tokens", () => {
-  const cases: Array<[string, Token[]]> = [
     makeTestCase(">", [new Token(TokenType.Greater, ">", null, 1)]),
     makeTestCase(">=", [new Token(TokenType.GreaterEqual, ">=", null, 1)]),
     makeTestCase("<", [new Token(TokenType.Less, "<", null, 1)]),
@@ -53,3 +41,72 @@ Deno.test("Should parse 'one or two' character tokens", () => {
     assertEquals(tokens, expectedTokens);
   });
 });
+
+Deno.test("Should parse identifiers", () => {
+  const program = "iAmA_identifier";
+
+  const scanner = new Scanner(program);
+  const tokens = scanner.scanTokens();
+
+  assertEquals(tokens, [
+    new Token(TokenType.Identifier, "iAmA_identifier", null, 1),
+    new Token(TokenType.EOF, "", null, 1),
+  ]);
+});
+
+Deno.test("Should parse strings", () => {
+  const program = '"i am a string"';
+
+  const scanner = new Scanner(program);
+  const tokens = scanner.scanTokens();
+
+  assertEquals(tokens, [
+    new Token(TokenType.String, '"i am a string"', "i am a string", 1),
+    new Token(TokenType.EOF, "", null, 1),
+  ]);
+});
+
+Deno.test("Should parse integer numbers", () => {
+  const program = '1977';
+
+  const scanner = new Scanner(program);
+  const tokens = scanner.scanTokens();
+
+  assertEquals(tokens, [
+    new Token(TokenType.Number, '1977', 1977, 1),
+    new Token(TokenType.EOF, "", null, 1),
+  ]);
+});
+
+
+Deno.test("Should parse decimal numbers", () => {
+    const program = '1957.1234';
+  
+    const scanner = new Scanner(program);
+    const tokens = scanner.scanTokens();
+  
+    assertEquals(tokens, [
+      new Token(TokenType.Number, '1957.1234', 1957.1234, 1),
+      new Token(TokenType.EOF, "", null, 1),
+    ]);
+  });
+
+// Deno.test("Should parse multiline strings", () => {
+//     const program = '"i am a string"';
+  
+//     const scanner = new Scanner(program);
+//     const tokens = scanner.scanTokens();
+  
+//     assertEquals(tokens, [
+//       new Token(TokenType.Identifier, "iAmA_identifier", null, 1),
+//       new Token(TokenType.EOF, "", null, 1),
+//     ]);
+//   });
+
+
+/* 
+    Handle errors:
+    - Unterminated string
+    - "Unexpected character."
+
+*/

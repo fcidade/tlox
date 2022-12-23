@@ -27,7 +27,8 @@ export class Scanner {
   }
 
   private scanToken() {
-    switch (this.advance()) {
+    const currChar = this.advance();
+    switch (currChar) {
       case "[": {
         this.addToken(TokenType.LeftBrace);
         break;
@@ -69,22 +70,65 @@ export class Scanner {
         break;
       }
       case ">": {
-        this.addToken(this.match('=') ? TokenType.GreaterEqual : TokenType.Greater);
+        this.addToken(
+          this.match("=") ? TokenType.GreaterEqual : TokenType.Greater,
+        );
         break;
       }
       case "<": {
-        this.addToken(this.match('=') ? TokenType.LessEqual : TokenType.Less);
+        this.addToken(this.match("=") ? TokenType.LessEqual : TokenType.Less);
         break;
       }
       case "=": {
-        this.addToken(this.match('=') ? TokenType.EqualEqual : TokenType.Equal);
+        this.addToken(this.match("=") ? TokenType.EqualEqual : TokenType.Equal);
         break;
       }
       case "!": {
-        this.addToken(this.match('=') ? TokenType.BangEqual : TokenType.Bang);
+        this.addToken(this.match("=") ? TokenType.BangEqual : TokenType.Bang);
         break;
       }
     }
+
+    if (this.isNumber(currChar)) {
+      this.scanNumber();
+    } else if (this.isAlphaNumeric(currChar)) {
+      this.scanIdentifier();
+    }
+
+    this.scanString(currChar);
+  }
+
+  private scanString(currChar: string) {
+    if (currChar === '"') {
+      while (this.advance() !== '"');
+      const literal = this.source.substring(this.start + 1, this.current - 1);
+      this.addTokenWithLiteral(TokenType.String, literal);
+    }
+  }
+
+  private scanIdentifier() {
+    while (this.isAlphaNumeric(this.advance()));
+    this.addToken(TokenType.Identifier);
+  }
+
+  private scanNumber() {
+    while (this.isNumber(this.advance()));
+    const literal = Number(this.source.substring(this.start, this.current));
+    this.addTokenWithLiteral(TokenType.Number, literal);
+  }
+
+  private isAlphaNumeric(character: string): boolean {
+    return this.isAlpha(character) || this.isNumber(character);
+  }
+
+  private isNumber(character: string): boolean {
+    return (character >= "0" && character <= "9");
+  }
+
+  private isAlpha(character: string): boolean {
+    return (character >= "a" && character <= "z") ||
+      (character >= "A" && character <= "Z") ||
+      character === "_";
   }
 
   private match(expected: string): boolean {
@@ -98,11 +142,15 @@ export class Scanner {
     return this.source[this.current++];
   }
 
-  private addToken(type: TokenType) {
+  private addTokenWithLiteral(type: TokenType, literal: TokenLiteral) {
     const lexeme = this.source.substring(this.start, this.current);
     this.tokens.push(
-      new Token(type, lexeme, null, this.line),
+      new Token(type, lexeme, literal, this.line),
     );
+  }
+
+  private addToken(type: TokenType) {
+    this.addTokenWithLiteral(type, null);
   }
 
   private isAtEnd(): boolean {
