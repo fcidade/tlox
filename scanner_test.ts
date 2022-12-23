@@ -15,7 +15,7 @@ import {
 import { Token, TokenType } from "./token.ts";
 
 const errorHandlerStub = {
-  error: console.error,
+  error: () => {},
 };
 
 const testCase = (
