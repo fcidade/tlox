@@ -1,5 +1,4 @@
-import { Lox } from "./lox.ts";
-import { Token, TokenLiteral, TokenType } from "./token.ts";
+import { Token, TokenLiteral, TokenType } from "../token.ts";
 
 export interface ErrorHandler {
   error(line: number, message: string): void;

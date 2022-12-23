@@ -12,7 +12,7 @@ import {
   Spy,
   spy,
 } from "https://deno.land/std@0.165.0/testing/mock.ts";
-import { Token, TokenType } from "./token.ts";
+import { Token, TokenType } from "../token.ts";
 
 const errorHandlerStub = {
   error: () => {},

@@ -1,3 +1,4 @@
+#!/usr/bin/env -S deno run --allow-env
 import { Lox } from "./lox.ts";
 
 const main = () => {
