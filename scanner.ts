@@ -108,14 +108,39 @@ export class Scanner {
 
   private scanIdentifier() {
     while (this.isAlphaNumeric(this.advance()));
-    this.addToken(TokenType.Identifier);
+
+    const keywords: Record<string, TokenType> = {
+      nil: TokenType.Nil,
+      this: TokenType.This,
+      super: TokenType.Super,
+      true: TokenType.True,
+      false: TokenType.False,
+      and: TokenType.And,
+      or: TokenType.Or,
+      var: TokenType.Var,
+      if: TokenType.If,
+      else: TokenType.Else,
+      for: TokenType.For,
+      while: TokenType.While,
+      fun: TokenType.Function,
+      return: TokenType.Return,
+      class: TokenType.Class,
+      print: TokenType.Print,
+    };
+
+    const identifier = this.source.substring(this.start, this.current);
+    if (identifier in keywords) {
+      this.addToken(keywords[identifier]);
+    } else {
+      this.addToken(TokenType.Identifier);
+    }
   }
 
   private scanNumber() {
     while (this.isNumber(this.peek())) this.advance();
-    if (this.peek() === '.') {
-      this.advance()
-      while(this.isNumber(this.advance()));
+    if (this.peek() === ".") {
+      this.advance();
+      while (this.isNumber(this.advance()));
     }
 
     const literal = Number(this.source.substring(this.start, this.current));
