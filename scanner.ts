@@ -112,7 +112,12 @@ export class Scanner {
   }
 
   private scanNumber() {
-    while (this.isNumber(this.advance()));
+    while (this.isNumber(this.peek())) this.advance();
+    if (this.peek() === '.') {
+      this.advance()
+      while(this.isNumber(this.advance()));
+    }
+
     const literal = Number(this.source.substring(this.start, this.current));
     this.addTokenWithLiteral(TokenType.Number, literal);
   }
@@ -136,6 +141,11 @@ export class Scanner {
     if (this.source[this.current] !== expected) return false;
     this.current++;
     return true;
+  }
+
+  private peek() {
+    if (this.isAtEnd()) return "\0";
+    return this.source[this.current];
   }
 
   private advance() {

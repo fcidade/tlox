@@ -66,45 +66,58 @@ Deno.test("Should parse strings", () => {
   ]);
 });
 
+Deno.test("Should parse multiline strings", () => {
+  const stringContent = `
+    i am
+     a 
+     
+     m
+     u
+     l
+     t
+     i
+     liiiiiii
+     ne
+     
+     
+     string
+    `;
+    const program = `"${stringContent}"`;
+
+    const scanner = new Scanner(program);
+    const tokens = scanner.scanTokens();
+
+    assertEquals(tokens, [
+      new Token(TokenType.String, `"${stringContent}"`, stringContent, 1),
+      new Token(TokenType.EOF, "", null, 1),
+    ]);
+  });
+
 Deno.test("Should parse integer numbers", () => {
-  const program = '1977';
+  const program = "1977";
 
   const scanner = new Scanner(program);
   const tokens = scanner.scanTokens();
 
   assertEquals(tokens, [
-    new Token(TokenType.Number, '1977', 1977, 1),
+    new Token(TokenType.Number, "1977", 1977, 1),
     new Token(TokenType.EOF, "", null, 1),
   ]);
 });
 
-
 Deno.test("Should parse decimal numbers", () => {
-    const program = '1957.1234';
-  
-    const scanner = new Scanner(program);
-    const tokens = scanner.scanTokens();
-  
-    assertEquals(tokens, [
-      new Token(TokenType.Number, '1957.1234', 1957.1234, 1),
-      new Token(TokenType.EOF, "", null, 1),
-    ]);
-  });
+  const program = "1957.1234";
 
-// Deno.test("Should parse multiline strings", () => {
-//     const program = '"i am a string"';
-  
-//     const scanner = new Scanner(program);
-//     const tokens = scanner.scanTokens();
-  
-//     assertEquals(tokens, [
-//       new Token(TokenType.Identifier, "iAmA_identifier", null, 1),
-//       new Token(TokenType.EOF, "", null, 1),
-//     ]);
-//   });
+  const scanner = new Scanner(program);
+  const tokens = scanner.scanTokens();
 
+  assertEquals(tokens, [
+    new Token(TokenType.Number, "1957.1234", 1957.1234, 1),
+    new Token(TokenType.EOF, "", null, 1),
+  ]);
+});
 
-/* 
+/*
     Handle errors:
     - Unterminated string
     - "Unexpected character."
