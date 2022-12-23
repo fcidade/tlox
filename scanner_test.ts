@@ -33,3 +33,23 @@ Deno.test("Should parse single character tokens", () => {
     assertEquals(tokens, expectedTokens);
   });
 });
+
+Deno.test("Should parse 'one or two' character tokens", () => {
+  const cases: Array<[string, Token[]]> = [
+    makeTestCase(">", [new Token(TokenType.Greater, ">", null, 1)]),
+    makeTestCase(">=", [new Token(TokenType.GreaterEqual, ">=", null, 1)]),
+    makeTestCase("<", [new Token(TokenType.Less, "<", null, 1)]),
+    makeTestCase("<=", [new Token(TokenType.LessEqual, "<=", null, 1)]),
+    makeTestCase("=", [new Token(TokenType.Equal, "=", null, 1)]),
+    makeTestCase("==", [new Token(TokenType.EqualEqual, "==", null, 1)]),
+    makeTestCase("!", [new Token(TokenType.Bang, "!", null, 1)]),
+    makeTestCase("!=", [new Token(TokenType.BangEqual, "!=", null, 1)]),
+  ];
+
+  cases.forEach(([program, expectedTokens]) => {
+    const scanner = new Scanner(program);
+    const tokens = scanner.scanTokens();
+
+    assertEquals(tokens, expectedTokens);
+  });
+});

@@ -18,7 +18,7 @@ export enum TokenType  {
     String,
     Number,
 
-    // Keywords]
+    // Keywords
     Nil,
     This,
     Super,
