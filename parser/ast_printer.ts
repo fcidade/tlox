@@ -1,5 +1,4 @@
 #!/usr/bin/env -S deno run --allow-write
-import { Token, TokenType } from "../token.ts";
 import { Binary, Expr, Grouping, Literal, Unary, Visitor } from "./expr.ts";
 
 export class AstPrinter implements Visitor<string> {
@@ -30,14 +29,3 @@ export class AstPrinter implements Visitor<string> {
       .concat(")");
   }
 }
-
-const expression = new Binary(
-  new Unary(
-    new Token(TokenType.Minus, "-", null, 1),
-    new Literal(123),
-  ),
-  new Token(TokenType.Star, "*", null, 1),
-  new Grouping(new Literal(46.67)),
-);
-console.log(new AstPrinter().print(expression));
-

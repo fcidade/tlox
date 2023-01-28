@@ -39,7 +39,7 @@ export class Grouping extends Expr {
 
 export class Literal extends Expr {
   constructor(
-    readonly value: any,
+    readonly value: number | string | boolean | null,
   ) {
     super();
   }

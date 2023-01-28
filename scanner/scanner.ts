@@ -176,7 +176,7 @@ export class Scanner {
       else: TokenType.Else,
       for: TokenType.For,
       while: TokenType.While,
-      fun: TokenType.Function,
+      fun: TokenType.Fun,
       return: TokenType.Return,
       class: TokenType.Class,
       print: TokenType.Print,

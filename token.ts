@@ -31,7 +31,7 @@ export enum TokenType  {
     Else,
     For,
     While,
-    Function,
+    Fun,
     Return,
     Class,
     Print,
